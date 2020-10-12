@@ -150,7 +150,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
                 if (handler != null) {
                     pipeline.addLast(handler);
                 }
-
+                // jjzhou:
                 ch.eventLoop().execute(new Runnable() {
                     @Override
                     public void run() {

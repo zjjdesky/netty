@@ -111,6 +111,8 @@ public abstract class ByteToMessageDecoder extends ChannelInboundHandlerAdapter 
      * Cumulate {@link ByteBuf}s by add them to a {@link CompositeByteBuf} and so do no memory copy whenever possible.
      * Be aware that {@link CompositeByteBuf} use a more complex indexing implementation so depending on your use-case
      * and the decoder implementation this may be slower then just use the {@link #MERGE_CUMULATOR}.
+     *
+     * netty默认使用{@link #MERGE_CUMULATOR} 不同的decoder行为 不见得组合模式更快 所以选择更通用的内存模式
      */
     public static final Cumulator COMPOSITE_CUMULATOR = new Cumulator() {
         @Override
@@ -121,6 +123,7 @@ public abstract class ByteToMessageDecoder extends ChannelInboundHandlerAdapter 
             }
             CompositeByteBuf composite = null;
             try {
+                // 创建composite ByteBuf
                 if (cumulation instanceof CompositeByteBuf && cumulation.refCnt() == 1) {
                     composite = (CompositeByteBuf) cumulation;
                     // Writer index must equal capacity if we are going to "write"
@@ -131,6 +134,7 @@ public abstract class ByteToMessageDecoder extends ChannelInboundHandlerAdapter 
                 } else {
                     composite = alloc.compositeBuffer(Integer.MAX_VALUE).addFlattenedComponents(true, cumulation);
                 }
+                // 避免内存复制
                 composite.addFlattenedComponents(true, in);
                 in = null;
                 return composite;
@@ -271,6 +275,7 @@ public abstract class ByteToMessageDecoder extends ChannelInboundHandlerAdapter 
             CodecOutputList out = CodecOutputList.newInstance();
             try {
                 first = cumulation == null;
+                // cumulator 数据积累器
                 cumulation = cumulator.cumulate(ctx.alloc(),
                         first ? Unpooled.EMPTY_BUFFER : cumulation, (ByteBuf) msg);
                 callDecode(ctx, cumulation, out);
@@ -437,6 +442,8 @@ public abstract class ByteToMessageDecoder extends ChannelInboundHandlerAdapter 
                 }
 
                 int oldInputLength = in.readableBytes();
+                // decode中时 不能执行完 handler remove清理操作
+                // 那decode完之后需要清理数据
                 decodeRemovalReentryProtection(ctx, in, out);
 
                 // Check if this handler was removed before continuing the loop.
