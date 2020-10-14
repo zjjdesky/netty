@@ -95,6 +95,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
      */
     public <T> ServerBootstrap childOption(ChannelOption<T> childOption, T value) {
         ObjectUtil.checkNotNull(childOption, "childOption");
+        // childOption 跟客户端做连接的一个SocketChannel 不是ServerSocketChannel
         synchronized (childOptions) {
             if (value == null) {
                 childOptions.remove(childOption);
@@ -150,7 +151,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
                 if (handler != null) {
                     pipeline.addLast(handler);
                 }
-                // jjzhou:
+                // ServerBootstrapAcceptor 做接受连接后的后续处理
                 ch.eventLoop().execute(new Runnable() {
                     @Override
                     public void run() {

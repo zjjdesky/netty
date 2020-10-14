@@ -61,6 +61,7 @@ public class UnpooledDirectByteBuf extends AbstractReferenceCountedByteBuf {
         }
 
         this.alloc = alloc;
+        // allocateDirect分配堆外内存
         setByteBuffer(allocateDirect(initialCapacity), false);
     }
 

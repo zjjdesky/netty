@@ -168,10 +168,12 @@ public abstract class Recycler<T> {
     @SuppressWarnings("unchecked")
     public final T get() {
         if (maxCapacityPerThread == 0) {
+            // 表明没有开启池化
             return newObject((Handle<T>) NOOP_HANDLE);
         }
         Stack<T> stack = threadLocal.get();
         DefaultHandle<T> handle = stack.pop();
+        // 试图从"池"中取出一个 没有就新建一个
         if (handle == null) {
             handle = stack.newHandle();
             handle.value = newObject(handle);
@@ -232,7 +234,7 @@ public abstract class Recycler<T> {
             if (lastRecycledId != recycleId || stack == null) {
                 throw new IllegalStateException("recycled already");
             }
-
+            // 释放用完的对象到池里去
             stack.push(this);
         }
     }
