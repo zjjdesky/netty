@@ -1,4 +1,4 @@
-package io.netty.example.jdk;
+package io.netty.example.jdk.nio;
 
 
 import java.io.IOException;
@@ -83,36 +83,37 @@ public class NioServer {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handlerWritableKey(SelectionKey key) throws ClosedChannelException {
         SocketChannel clientSocketChannel = (SocketChannel) key.channel();
 
         List<String> respQueue = (ArrayList<String>) key.attachment();
         for (String content : respQueue) {
-            System.out.println("写入数据： " + content);
+            System.out.println("server writable写入数据： " + content);
             CodecUtil.write(clientSocketChannel, content);
         }
         respQueue.clear();
         clientSocketChannel.register(selector, SelectionKey.OP_READ, respQueue);
     }
 
+    @SuppressWarnings("unchecked")
     private void handlerReadableKey(SelectionKey key) throws ClosedChannelException {
         SocketChannel clientSocketChannel = (SocketChannel) key.channel();
         ByteBuffer readBuffer = CodecUtil.read(clientSocketChannel);
         if (null == readBuffer) {
-            System.out.println("断开channel");
+            System.out.println("server断开channel");
             // ops=0 表示取消注册
             clientSocketChannel.register(selector, 0);
             return;
         }
         if (readBuffer.position() > 0) {
             String content = CodecUtil.newString(readBuffer);
-            System.out.println("读取数据: " + content);
+            System.out.println("server readable读取数据: " + content);
 
             List<String> respQueue = (ArrayList<String>) key.attachment();
-            respQueue.add("响应： " + content);
+            respQueue.add("server readable响应： " + content);
             clientSocketChannel.register(selector, SelectionKey.OP_WRITE, key.attachment());
         }
-
 
     }
 
@@ -120,7 +121,7 @@ public class NioServer {
         // 接受 客户端连接
         SocketChannel clientSocketChannel = ((ServerSocketChannel) key.channel()).accept();
         clientSocketChannel.configureBlocking(false);
-        System.out.println("接受新的channel");
+        System.out.println("server接受新的channel");
         // 注册ClientSocketChannel到Selector
         clientSocketChannel.register(selector, SelectionKey.OP_READ, new ArrayList<String>());
     }

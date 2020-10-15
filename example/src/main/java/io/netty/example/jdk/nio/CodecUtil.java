@@ -1,4 +1,4 @@
-package io.netty.example.jdk;
+package io.netty.example.jdk.nio;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
