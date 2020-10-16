@@ -463,7 +463,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
             }
 
             AbstractChannel.this.eventLoop = eventLoop;
-
+            // 判断自己的线程是不是NioEventLoop里的线程
             if (eventLoop.inEventLoop()) {
                 register0(promise);
             } else {
@@ -1081,7 +1081,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
     /**
      * Bind the {@link Channel} to the {@link SocketAddress}
      */
-    protected abstract void doBind(SocketAddress localAddress) throws Exception;
+    protected abstract void  doBind(SocketAddress localAddress) throws Exception;
 
     /**
      * Disconnect this {@link Channel} from its remote peer
